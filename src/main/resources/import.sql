@@ -27,6 +27,16 @@ INSERT INTO tb_user (name, email, phone, password) VALUES ('Carla Santos', 'carl
 INSERT INTO tb_user (name, email, phone, password) VALUES ('Diego Alves', 'diego.alves@example.com', '(11) 90000-0004', '12345678');
 INSERT INTO tb_user (name, email, phone, password) VALUES ('Elisa Rocha', 'elisa.rocha@example.com', '(11) 90000-0005', '12345678');
 
+INSERT INTO tb_role (authority) VALUES ('ROLE_USER');
+INSERT INTO tb_role (authority) VALUES ('ROLE_ADMIN');
+
+INSERT INTO tb_user_role (user_id, role_id) VALUES (1, 1);
+INSERT INTO tb_user_role (user_id, role_id) VALUES (1, 2);
+INSERT INTO tb_user_role (user_id, role_id) VALUES (2, 1);
+INSERT INTO tb_user_role (user_id, role_id) VALUES (3, 1);
+INSERT INTO tb_user_role (user_id, role_id) VALUES (4, 1);
+INSERT INTO tb_user_role (user_id, role_id) VALUES (5, 1);
+
 INSERT INTO tb_loan (user_id, book_id, loan_date, expected_return_date, status) VALUES (1, 1, DATE '2026-11-20', DATE '2026-12-20', 'ACTIVE');
 INSERT INTO tb_loan (user_id, book_id, loan_date, expected_return_date, status) VALUES (2, 3, DATE '2026-11-20', DATE '2026-12-20', 'ACTIVE');
 INSERT INTO tb_loan (user_id, book_id, loan_date, expected_return_date, status) VALUES (3, 6, DATE '2026-11-20', DATE '2026-12-20', 'ACTIVE');
