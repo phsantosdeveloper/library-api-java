@@ -83,10 +83,12 @@ public class AuthorServiceTest {
         when(authorRepository.findById(99L)).thenReturn(Optional.empty());
 
         //act and assert
-        assertThrows(
+        ResourceNotFoundException exception = assertThrows(
                 ResourceNotFoundException.class,
                 () -> authorService.findById(99L)
         );
+
+        assertEquals("Resource not found, id: 99", exception.getMessage());
 
         verify(authorRepository).findById(99L);
     }
@@ -143,10 +145,12 @@ public class AuthorServiceTest {
         when(authorRepository.findById(99L)).thenReturn(Optional.empty());
 
         //act and assert
-        assertThrows(
+        ResourceNotFoundException exception = assertThrows(
                 ResourceNotFoundException.class,
                 () -> authorService.update(99L, request)
         );
+
+        assertEquals("Resource not found, id: 99", exception.getMessage());
 
         verify(authorRepository).findById(99L);
     }
@@ -173,10 +177,12 @@ public class AuthorServiceTest {
         when(authorRepository.findById(99L)).thenReturn(Optional.empty());
 
         //act
-        assertThrows(
+        ResourceNotFoundException exception = assertThrows(
                 ResourceNotFoundException.class,
                 () -> authorService.delete(99L)
         );
+
+        assertEquals("Resource not found, id: 99", exception.getMessage());
 
         //assert
         verify(authorRepository).findById(99L);

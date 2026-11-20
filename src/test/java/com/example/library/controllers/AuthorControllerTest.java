@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 public class AuthorControllerTest {
 
-    private static final String NOT_FOUND_MESSAGE = "Author not found";
+    private static final String NOT_FOUND_MESSAGE = "Resource not found, id: 99";
 
     @Autowired
     private MockMvc mockMvc;
@@ -114,7 +114,7 @@ public class AuthorControllerTest {
     void shouldReturn404WhenFindingNonExistentAuthor() throws Exception {
 
         //arrange
-        when(authorService.findById(99L)).thenThrow(new ResourceNotFoundException(NOT_FOUND_MESSAGE));
+        when(authorService.findById(99L)).thenThrow(new ResourceNotFoundException(99L));
 
         //act + assert
         mockMvc.perform(get("/authors/{id}", 99L))
@@ -155,7 +155,7 @@ public class AuthorControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenInsertingAuthorWithEmptyName() throws Exception {
+    void shouldReturn422WhenInsertingAuthorWithEmptyName() throws Exception {
 
         //arrange
         String json = """
@@ -166,13 +166,19 @@ public class AuthorControllerTest {
 
         //act + assert
         mockMvc.perform(post("/authors").contentType(MediaType.APPLICATION_JSON).content(json))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.status").value(422))
+                .andExpect(jsonPath("$.error").value("Entity validation error"))
+                .andExpect(jsonPath("$.message").value("Error in data validation"))
+                .andExpect(jsonPath("$.errors.length()").value(1))
+                .andExpect(jsonPath("$.errors[0].fieldName").value("name"))
+                .andExpect(jsonPath("$.errors[0].message").value("Name is required"));
 
         verify(authorService, never()).insert(any(AuthorRequestDTO.class));
     }
 
     @Test
-    void shouldReturn400WhenInsertingAuthorWithBlankName() throws Exception {
+    void shouldReturn422WhenInsertingAuthorWithBlankName() throws Exception {
 
         //arrange
         String json = """
@@ -183,13 +189,19 @@ public class AuthorControllerTest {
 
         //act + assert
         mockMvc.perform(post("/authors").contentType(MediaType.APPLICATION_JSON).content(json))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.status").value(422))
+                .andExpect(jsonPath("$.error").value("Entity validation error"))
+                .andExpect(jsonPath("$.message").value("Error in data validation"))
+                .andExpect(jsonPath("$.errors.length()").value(1))
+                .andExpect(jsonPath("$.errors[0].fieldName").value("name"))
+                .andExpect(jsonPath("$.errors[0].message").value("Name is required"));
 
         verify(authorService, never()).insert(any(AuthorRequestDTO.class));
     }
 
     @Test
-    void shouldReturn400WhenInsertingAuthorWithNullName() throws Exception {
+    void shouldReturn422WhenInsertingAuthorWithNullName() throws Exception {
 
         //arrange
         String json = """
@@ -200,7 +212,13 @@ public class AuthorControllerTest {
 
         //act + assert
         mockMvc.perform(post("/authors").contentType(MediaType.APPLICATION_JSON).content(json))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.status").value(422))
+                .andExpect(jsonPath("$.error").value("Entity validation error"))
+                .andExpect(jsonPath("$.message").value("Error in data validation"))
+                .andExpect(jsonPath("$.errors.length()").value(1))
+                .andExpect(jsonPath("$.errors[0].fieldName").value("name"))
+                .andExpect(jsonPath("$.errors[0].message").value("Name is required"));
 
         verify(authorService, never()).insert(any(AuthorRequestDTO.class));
     }
@@ -236,7 +254,7 @@ public class AuthorControllerTest {
 
         //arrange
         when(authorService.update(eq(99L), any(AuthorRequestDTO.class)))
-                .thenThrow(new ResourceNotFoundException(NOT_FOUND_MESSAGE));
+                .thenThrow(new ResourceNotFoundException(99L));
 
         String json = """
                 {
@@ -256,7 +274,7 @@ public class AuthorControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenUpdatingAuthorWithEmptyName() throws Exception {
+    void shouldReturn422WhenUpdatingAuthorWithEmptyName() throws Exception {
 
         //arrange
         String json = """
@@ -267,13 +285,19 @@ public class AuthorControllerTest {
 
         //act + assert
         mockMvc.perform(put("/authors/{id}", 1L).contentType(MediaType.APPLICATION_JSON).content(json))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.status").value(422))
+                .andExpect(jsonPath("$.error").value("Entity validation error"))
+                .andExpect(jsonPath("$.message").value("Error in data validation"))
+                .andExpect(jsonPath("$.errors.length()").value(1))
+                .andExpect(jsonPath("$.errors[0].fieldName").value("name"))
+                .andExpect(jsonPath("$.errors[0].message").value("Name is required"));
 
         verify(authorService, never()).update(anyLong(), any(AuthorRequestDTO.class));
     }
 
     @Test
-    void shouldReturn400WhenUpdatingAuthorWithBlankName() throws Exception {
+    void shouldReturn422WhenUpdatingAuthorWithBlankName() throws Exception {
 
         //arrange
         String json = """
@@ -284,13 +308,19 @@ public class AuthorControllerTest {
 
         //act + assert
         mockMvc.perform(put("/authors/{id}", 1L).contentType(MediaType.APPLICATION_JSON).content(json))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.status").value(422))
+                .andExpect(jsonPath("$.error").value("Entity validation error"))
+                .andExpect(jsonPath("$.message").value("Error in data validation"))
+                .andExpect(jsonPath("$.errors.length()").value(1))
+                .andExpect(jsonPath("$.errors[0].fieldName").value("name"))
+                .andExpect(jsonPath("$.errors[0].message").value("Name is required"));
 
         verify(authorService, never()).update(anyLong(), any(AuthorRequestDTO.class));
     }
 
     @Test
-    void shouldReturn400WhenUpdatingAuthorWithNullName() throws Exception {
+    void shouldReturn422WhenUpdatingAuthorWithNullName() throws Exception {
 
         //arrange
         String json = """
@@ -301,7 +331,13 @@ public class AuthorControllerTest {
 
         //act + assert
         mockMvc.perform(put("/authors/{id}", 1L).contentType(MediaType.APPLICATION_JSON).content(json))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.status").value(422))
+                .andExpect(jsonPath("$.error").value("Entity validation error"))
+                .andExpect(jsonPath("$.message").value("Error in data validation"))
+                .andExpect(jsonPath("$.errors.length()").value(1))
+                .andExpect(jsonPath("$.errors[0].fieldName").value("name"))
+                .andExpect(jsonPath("$.errors[0].message").value("Name is required"));
 
         verify(authorService, never()).update(anyLong(), any(AuthorRequestDTO.class));
     }
@@ -322,7 +358,7 @@ public class AuthorControllerTest {
     void shouldReturn404WhenDeletingNonExistentAuthor() throws Exception {
 
         //arrange
-        doThrow(new ResourceNotFoundException(NOT_FOUND_MESSAGE)).when(authorService).delete(99L);
+        doThrow(new ResourceNotFoundException(99L)).when(authorService).delete(99L);
 
         //act + assert
         mockMvc.perform(delete("/authors/{id}", 99L))
