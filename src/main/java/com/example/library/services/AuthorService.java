@@ -1,6 +1,7 @@
 package com.example.library.services;
 
-import com.example.library.dtos.AuthorDTO;
+import com.example.library.dtos.AuthorRequestDTO;
+import com.example.library.dtos.AuthorResponseDTO;
 import com.example.library.entities.Author;
 import com.example.library.exceptions.ResourceNotFoundException;
 import com.example.library.repositories.AuthorRepository;
@@ -19,30 +20,30 @@ public class AuthorService {
     }
 
     @Transactional(readOnly = true)
-    public Page<AuthorDTO> findAll(Pageable pageable) {
+    public Page<AuthorResponseDTO> findAll(Pageable pageable) {
         Page<Author> authors = authorRepository.findAll(pageable);
-        return authors.map(author -> new AuthorDTO(author));
+        return authors.map(author -> new AuthorResponseDTO(author));
     }
 
     @Transactional(readOnly = true)
-    public AuthorDTO findById(Long id) {
+    public AuthorResponseDTO findById(Long id) {
         Author author = searchAuthor(id);
-        return new AuthorDTO(author);
+        return new AuthorResponseDTO(author);
     }
 
     @Transactional
-    public AuthorDTO insert(AuthorDTO dto) {
-        Author author = new Author(null, dto.name());
+    public AuthorResponseDTO insert(AuthorRequestDTO request) {
+        Author author = new Author(null, request.name());
         authorRepository.save(author);
-        return new AuthorDTO(author);
+        return new AuthorResponseDTO(author);
     }
 
     @Transactional
-    public AuthorDTO update(Long id, AuthorDTO dto) {
+    public AuthorResponseDTO update(Long id, AuthorRequestDTO request) {
         Author author = searchAuthor(id);
-        author.setName(dto.name());
+        author.setName(request.name());
         authorRepository.save(author);
-        return new AuthorDTO(author);
+        return new AuthorResponseDTO(author);
     }
 
     @Transactional
@@ -53,7 +54,7 @@ public class AuthorService {
 
     private Author searchAuthor(Long id) {
         Author authorFound = authorRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Author not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(id));
 
         return authorFound;
     }

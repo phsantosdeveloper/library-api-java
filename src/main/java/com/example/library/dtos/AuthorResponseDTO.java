@@ -2,17 +2,13 @@ package com.example.library.dtos;
 
 import com.example.library.entities.Author;
 
-public record AuthorDTO(
+public record AuthorResponseDTO(
+
         Long id,
         String name
 ) {
 
-    public AuthorDTO(Long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    public AuthorDTO(Author author) {
+    public AuthorResponseDTO(Author author) {
         this(author.getId(), author.getName());
     }
 }

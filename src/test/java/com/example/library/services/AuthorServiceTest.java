@@ -1,6 +1,7 @@
 package com.example.library.services;
 
-import com.example.library.dtos.AuthorDTO;
+import com.example.library.dtos.AuthorRequestDTO;
+import com.example.library.dtos.AuthorResponseDTO;
 import com.example.library.entities.Author;
 import com.example.library.exceptions.ResourceNotFoundException;
 import com.example.library.repositories.AuthorRepository;
@@ -45,13 +46,13 @@ public class AuthorServiceTest {
 
 
         //act
-        Page<AuthorDTO> result = authorService.findAll(pageable);
+        Page<AuthorResponseDTO> result = authorService.findAll(pageable);
 
 
         //assert
         assertEquals(List.of(
-                new AuthorDTO(1L, "Machado de Assis"),
-                new AuthorDTO(2L, "Jorge Amado")
+                new AuthorResponseDTO(1L, "Machado de Assis"),
+                new AuthorResponseDTO(2L, "Jorge Amado")
         ), result.getContent());
 
         assertEquals(20, result.getSize());
@@ -68,10 +69,10 @@ public class AuthorServiceTest {
         when(authorRepository.findById(1L)).thenReturn(Optional.of(author));
 
         //act
-        AuthorDTO resultDto = authorService.findById(1L);
+        AuthorResponseDTO resultDto = authorService.findById(1L);
 
         //assert
-        assertEquals(new AuthorDTO(1L, "Machado de Assis"), resultDto);
+        assertEquals(new AuthorResponseDTO(1L, "Machado de Assis"), resultDto);
         verify(authorRepository).findById(1L);
     }
 
@@ -94,7 +95,7 @@ public class AuthorServiceTest {
     void shouldInsertAuthorWithValidData() {
 
         //arrage
-        AuthorDTO dto = new AuthorDTO(null, "Machado de Assis");
+        AuthorRequestDTO request = new AuthorRequestDTO("Machado de Assis");
 
         when(authorRepository.save(any(Author.class))).thenAnswer(call -> {
             Author author = call.getArgument(0);
@@ -103,13 +104,13 @@ public class AuthorServiceTest {
         });
 
         //act
-        AuthorDTO result = authorService.insert(dto);
+        AuthorResponseDTO result = authorService.insert(request);
         ArgumentCaptor<Author> captor = ArgumentCaptor.forClass(Author.class);
         verify(authorRepository).save(captor.capture());
         Author authorCaptured = captor.getValue();
 
         //assert
-        assertEquals(new AuthorDTO(1L, "Machado de Assis"), result);
+        assertEquals(new AuthorResponseDTO(1L, "Machado de Assis"), result);
         assertEquals(authorCaptured.getId(), 1L);
         assertEquals(authorCaptured.getName(), "Machado de Assis");
     }
@@ -120,15 +121,15 @@ public class AuthorServiceTest {
         //arrage
         Author author = new Author(1L, "Joaquim Maria Machado de Assis");
 
-        AuthorDTO dto = new AuthorDTO(null, "Machado de Assis");
+        AuthorRequestDTO request = new AuthorRequestDTO("Machado de Assis");
 
         when(authorRepository.findById(1L)).thenReturn(Optional.of(author));
 
         //act
-        AuthorDTO result = authorService.update(1L, dto);
+        AuthorResponseDTO result = authorService.update(1L, request);
 
         //assert
-        assertEquals(new AuthorDTO(1L, "Machado de Assis"), result);
+        assertEquals(new AuthorResponseDTO(1L, "Machado de Assis"), result);
 
         verify(authorRepository).save(author);
     }
@@ -137,14 +138,14 @@ public class AuthorServiceTest {
     void shouldThrowExceptionWhenUpdateForNonExistentAuthor() {
 
         //arrange
-        AuthorDTO dto = new AuthorDTO(null, "Machado de Assis");
+        AuthorRequestDTO request = new AuthorRequestDTO("Machado de Assis");
 
         when(authorRepository.findById(99L)).thenReturn(Optional.empty());
 
         //act and assert
         assertThrows(
                 ResourceNotFoundException.class,
-                () -> authorService.update(99L, dto)
+                () -> authorService.update(99L, request)
         );
 
         verify(authorRepository).findById(99L);
