@@ -21,11 +21,11 @@ INSERT INTO tb_book (title, isbn, publication_date, total_copies, author_id, cat
 INSERT INTO tb_book (title, isbn, publication_date, total_copies, author_id, category_id) VALUES ('Frankenstein', '9788571643987', DATE '1994-08-18', 2, 5, 4);
 INSERT INTO tb_book (title, isbn, publication_date, total_copies, author_id, category_id) VALUES ('Drácula', '9788582850053', DATE '2014-10-07', 2, 6, 4);
 
-INSERT INTO tb_user (name, email, phone, password) VALUES ('Ana Souza', 'ana.souza@example.com', '(11) 90000-0001', '12345678');
-INSERT INTO tb_user (name, email, phone, password) VALUES ('Bruno Lima', 'bruno.lima@example.com', '(11) 90000-0002', '12345678');
-INSERT INTO tb_user (name, email, phone, password) VALUES ('Carla Santos', 'carla.santos@example.com', '(11) 90000-0003', '12345678');
-INSERT INTO tb_user (name, email, phone, password) VALUES ('Diego Alves', 'diego.alves@example.com', '(11) 90000-0004', '12345678');
-INSERT INTO tb_user (name, email, phone, password) VALUES ('Elisa Rocha', 'elisa.rocha@example.com', '(11) 90000-0005', '12345678');
+INSERT INTO tb_user (name, email, phone, password) VALUES ('Ana Souza', 'ana.souza@example.com', '(11) 90000-0001', '$2a$10$jNFtUtynKdaAvYas0YO5Re2xGHnmXv3X0S98xwVIDrcX1kmhe/3C6');
+INSERT INTO tb_user (name, email, phone, password) VALUES ('Bruno Lima', 'bruno.lima@example.com', '(11) 90000-0002', '$2a$10$jNFtUtynKdaAvYas0YO5Re2xGHnmXv3X0S98xwVIDrcX1kmhe/3C6');
+INSERT INTO tb_user (name, email, phone, password) VALUES ('Carla Santos', 'carla.santos@example.com', '(11) 90000-0003', '$2a$10$jNFtUtynKdaAvYas0YO5Re2xGHnmXv3X0S98xwVIDrcX1kmhe/3C6');
+INSERT INTO tb_user (name, email, phone, password) VALUES ('Diego Alves', 'diego.alves@example.com', '(11) 90000-0004', '$2a$10$jNFtUtynKdaAvYas0YO5Re2xGHnmXv3X0S98xwVIDrcX1kmhe/3C6');
+INSERT INTO tb_user (name, email, phone, password) VALUES ('Elisa Rocha', 'elisa.rocha@example.com', '(11) 90000-0005', '$2a$10$jNFtUtynKdaAvYas0YO5Re2xGHnmXv3X0S98xwVIDrcX1kmhe/3C6');
 
 INSERT INTO tb_role (authority) VALUES ('ROLE_USER');
 INSERT INTO tb_role (authority) VALUES ('ROLE_ADMIN');
