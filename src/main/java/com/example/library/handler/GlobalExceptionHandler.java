@@ -2,6 +2,7 @@ package com.example.library.handler;
 
 import com.example.library.dtos.CustomError;
 import com.example.library.dtos.ValidationError;
+import com.example.library.exceptions.InvalidWithdrawalAmountException;
 import com.example.library.exceptions.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -49,6 +50,18 @@ public class GlobalExceptionHandler {
 
         String error = "Database integrity violated";
         String message = "The operation performed violates the integrity of the database";
+        HttpStatus status = HttpStatus.CONFLICT;
+
+        CustomError err = new CustomError(Instant.now(), status.value(), error, message, request.getRequestURI());
+
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(InvalidWithdrawalAmountException.class)
+    public ResponseEntity<CustomError> InvalidWithdrawalAmount(InvalidWithdrawalAmountException e, HttpServletRequest request) {
+
+        String error = "Invalid withdrawal amount";
+        String message = e.getMessage();
         HttpStatus status = HttpStatus.CONFLICT;
 
         CustomError err = new CustomError(Instant.now(), status.value(), error, message, request.getRequestURI());
