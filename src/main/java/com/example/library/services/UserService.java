@@ -1,13 +1,18 @@
 package com.example.library.services;
 
+import com.example.library.dtos.UserResponseDTO;
 import com.example.library.entities.Role;
 import com.example.library.entities.User;
 import com.example.library.projections.UserDetailsProjection;
 import com.example.library.repositories.UserRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -39,5 +44,21 @@ public class UserService implements UserDetailsService {
         }
 
         return user;
+    }
+
+    protected User authenticated() {
+
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Jwt jwtPrincipal = (Jwt) authentication.getPrincipal();
+            String username = jwtPrincipal.getClaim("username");
+            return userRepository.findByEmail(username)
+                    .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
+
+    }
+
+    @Transactional(readOnly = true)
+    public UserResponseDTO getMe() {
+        User user = authenticated();
+        return new UserResponseDTO(user);
     }
 }
