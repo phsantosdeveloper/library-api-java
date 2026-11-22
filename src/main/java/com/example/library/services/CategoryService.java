@@ -42,6 +42,7 @@ public class CategoryService {
     public CategoryResponseDTO update(Long id, CategoryRequestDTO request) {
         Category category = searchCategory(id);
         category.setName(request.name());
+        categoryRepository.save(category);
         return new CategoryResponseDTO(category);
     }
 

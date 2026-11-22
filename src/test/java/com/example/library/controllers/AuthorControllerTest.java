@@ -1,5 +1,6 @@
 package com.example.library.controllers;
 
+import com.example.library.config.ResourceServerConfig;
 import com.example.library.dtos.AuthorRequestDTO;
 import com.example.library.dtos.AuthorResponseDTO;
 import com.example.library.exceptions.ResourceNotFoundException;
@@ -7,25 +8,34 @@ import com.example.library.services.AuthorService;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.h2console.autoconfigure.H2ConsoleProperties;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AuthorController.class)
 @ActiveProfiles("test")
+@Import(ResourceServerConfig.class)
+@EnableConfigurationProperties(H2ConsoleProperties.class)
 public class AuthorControllerTest {
 
     private static final String NOT_FOUND_MESSAGE = "Resource not found, id: 99";
@@ -35,6 +45,17 @@ public class AuthorControllerTest {
 
     @MockitoBean
     private AuthorService authorService;
+
+    @MockitoBean
+    private JwtDecoder jwtDecoder;
+
+    private static RequestPostProcessor admin() {
+        return jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN"));
+    }
+
+    private static RequestPostProcessor user() {
+        return jwt().authorities(new SimpleGrantedAuthority("ROLE_USER"));
+    }
 
     // ---------- GET /authors ----------
 
@@ -49,8 +70,8 @@ public class AuthorControllerTest {
         when(authorService.findAll(any(Pageable.class)))
                 .thenReturn(new PageImpl<>(dtos, PageRequest.of(0, 20), 2));
 
-        //act + assert
-        mockMvc.perform(get("/authors")
+        //act and assert
+        mockMvc.perform(get("/authors").with(admin())
                         .param("page", "0")
                         .param("size", "20"))
                 .andExpect(status().isOk())
@@ -82,8 +103,8 @@ public class AuthorControllerTest {
         when(authorService.findAll(any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(), PageRequest.of(0, 20), 0));
 
-        //act + assert
-        mockMvc.perform(get("/authors"))
+        //act and assert
+        mockMvc.perform(get("/authors").with(admin()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isEmpty());
 
@@ -101,8 +122,8 @@ public class AuthorControllerTest {
         //arrange
         when(authorService.findById(1L)).thenReturn(new AuthorResponseDTO(1L, "Machado de Assis"));
 
-        //act + assert
-        mockMvc.perform(get("/authors/{id}", 1L))
+        //act and assert
+        mockMvc.perform(get("/authors/{id}", 1L).with(admin()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.name").value("Machado de Assis"));
@@ -116,8 +137,8 @@ public class AuthorControllerTest {
         //arrange
         when(authorService.findById(99L)).thenThrow(new ResourceNotFoundException(99L));
 
-        //act + assert
-        mockMvc.perform(get("/authors/{id}", 99L))
+        //act and assert
+        mockMvc.perform(get("/authors/{id}", 99L).with(admin()))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.error").value("Resource not found"))
@@ -142,8 +163,8 @@ public class AuthorControllerTest {
                 }
                 """;
 
-        //act + assert
-        mockMvc.perform(post("/authors").contentType(MediaType.APPLICATION_JSON).content(json))
+        //act and assert
+        mockMvc.perform(post("/authors").with(admin()).contentType(MediaType.APPLICATION_JSON).content(json))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", "http://localhost/authors/10"))
                 .andExpect(jsonPath("$.id").value(10L))
@@ -164,8 +185,8 @@ public class AuthorControllerTest {
                 }
                 """;
 
-        //act + assert
-        mockMvc.perform(post("/authors").contentType(MediaType.APPLICATION_JSON).content(json))
+        //act and assert
+        mockMvc.perform(post("/authors").with(admin()).contentType(MediaType.APPLICATION_JSON).content(json))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.status").value(422))
                 .andExpect(jsonPath("$.error").value("Entity validation error"))
@@ -187,8 +208,8 @@ public class AuthorControllerTest {
                 }
                 """;
 
-        //act + assert
-        mockMvc.perform(post("/authors").contentType(MediaType.APPLICATION_JSON).content(json))
+        //act and assert
+        mockMvc.perform(post("/authors").with(admin()).contentType(MediaType.APPLICATION_JSON).content(json))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.status").value(422))
                 .andExpect(jsonPath("$.error").value("Entity validation error"))
@@ -210,8 +231,8 @@ public class AuthorControllerTest {
                 }
                 """;
 
-        //act + assert
-        mockMvc.perform(post("/authors").contentType(MediaType.APPLICATION_JSON).content(json))
+        //act and assert
+        mockMvc.perform(post("/authors").with(admin()).contentType(MediaType.APPLICATION_JSON).content(json))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.status").value(422))
                 .andExpect(jsonPath("$.error").value("Entity validation error"))
@@ -238,8 +259,8 @@ public class AuthorControllerTest {
                 }
                 """;
 
-        //act + assert
-        mockMvc.perform(put("/authors/{id}", 1L).contentType(MediaType.APPLICATION_JSON).content(json))
+        //act and assert
+        mockMvc.perform(put("/authors/{id}", 1L).with(admin()).contentType(MediaType.APPLICATION_JSON).content(json))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("Machado de Assis"));
@@ -262,8 +283,8 @@ public class AuthorControllerTest {
                 }
                 """;
 
-        //act + assert
-        mockMvc.perform(put("/authors/{id}", 99L).contentType(MediaType.APPLICATION_JSON).content(json))
+        //act and assert
+        mockMvc.perform(put("/authors/{id}", 99L).with(admin()).contentType(MediaType.APPLICATION_JSON).content(json))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.error").value("Resource not found"))
@@ -284,7 +305,7 @@ public class AuthorControllerTest {
                 """;
 
         //act + assert
-        mockMvc.perform(put("/authors/{id}", 1L).contentType(MediaType.APPLICATION_JSON).content(json))
+        mockMvc.perform(put("/authors/{id}", 1L).with(admin()).contentType(MediaType.APPLICATION_JSON).content(json))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.status").value(422))
                 .andExpect(jsonPath("$.error").value("Entity validation error"))
@@ -306,8 +327,8 @@ public class AuthorControllerTest {
                 }
                 """;
 
-        //act + assert
-        mockMvc.perform(put("/authors/{id}", 1L).contentType(MediaType.APPLICATION_JSON).content(json))
+        //act and assert
+        mockMvc.perform(put("/authors/{id}", 1L).with(admin()).contentType(MediaType.APPLICATION_JSON).content(json))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.status").value(422))
                 .andExpect(jsonPath("$.error").value("Entity validation error"))
@@ -330,7 +351,7 @@ public class AuthorControllerTest {
                 """;
 
         //act + assert
-        mockMvc.perform(put("/authors/{id}", 1L).contentType(MediaType.APPLICATION_JSON).content(json))
+        mockMvc.perform(put("/authors/{id}", 1L).with(admin()).contentType(MediaType.APPLICATION_JSON).content(json))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.status").value(422))
                 .andExpect(jsonPath("$.error").value("Entity validation error"))
@@ -347,8 +368,8 @@ public class AuthorControllerTest {
     @Test
     void shouldReturn204WhenDeletingExistingAuthor() throws Exception {
 
-        //act + assert
-        mockMvc.perform(delete("/authors/{id}", 1L))
+        //act and assert
+        mockMvc.perform(delete("/authors/{id}", 1L).with(admin()))
                 .andExpect(status().isNoContent());
 
         verify(authorService).delete(1L);
@@ -360,8 +381,8 @@ public class AuthorControllerTest {
         //arrange
         doThrow(new ResourceNotFoundException(99L)).when(authorService).delete(99L);
 
-        //act + assert
-        mockMvc.perform(delete("/authors/{id}", 99L))
+        //act and assert
+        mockMvc.perform(delete("/authors/{id}", 99L).with(admin()))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.error").value("Resource not found"))
@@ -369,5 +390,72 @@ public class AuthorControllerTest {
                 .andExpect(jsonPath("$.path").value("/authors/99"));
 
         verify(authorService).delete(99L);
+    }
+
+    // ---------- SECURITY ----------
+
+    @Test
+    void shouldReturn401WhenRequestHasNoToken() throws Exception {
+
+        //act and assert
+        mockMvc.perform(get("/authors"))
+                .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(authorService);
+    }
+
+    @Test
+    void shouldReturn200WhenUserFindsAuthorById() throws Exception {
+
+        //arrange
+        when(authorService.findById(1L)).thenReturn(new AuthorResponseDTO(1L, "Machado de Assis"));
+
+        //act and assert
+        mockMvc.perform(get("/authors/{id}", 1L).with(user()))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldReturn403WhenUserTriesToInsertAuthor() throws Exception {
+
+        //arrange
+        String json = """
+                {
+                    "name": "Clarice Lispector"
+                }
+                """;
+
+        //act and assert
+        mockMvc.perform(post("/authors").with(user()).contentType(MediaType.APPLICATION_JSON).content(json))
+                .andExpect(status().isForbidden());
+
+        verify(authorService, never()).insert(any(AuthorRequestDTO.class));
+    }
+
+    @Test
+    void shouldReturn403WhenUserTriesToUpdateAuthor() throws Exception {
+
+        //arrange
+        String json = """
+                {
+                    "name": "Machado de Assis"
+                }
+                """;
+
+        //act and assert
+        mockMvc.perform(put("/authors/{id}", 1L).with(user()).contentType(MediaType.APPLICATION_JSON).content(json))
+                .andExpect(status().isForbidden());
+
+        verify(authorService, never()).update(anyLong(), any(AuthorRequestDTO.class));
+    }
+
+    @Test
+    void shouldReturn403WhenUserTriesToDeleteAuthor() throws Exception {
+
+        //act and assert
+        mockMvc.perform(delete("/authors/{id}", 1L).with(user()))
+                .andExpect(status().isForbidden());
+
+        verify(authorService, never()).delete(anyLong());
     }
 }
