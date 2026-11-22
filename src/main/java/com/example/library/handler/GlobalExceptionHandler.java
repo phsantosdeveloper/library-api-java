@@ -4,6 +4,7 @@ import com.example.library.dtos.CustomError;
 import com.example.library.dtos.ValidationError;
 import com.example.library.exceptions.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -39,6 +40,18 @@ public class GlobalExceptionHandler {
         for(FieldError f : e.getBindingResult().getFieldErrors()) {
             err.addError(f.getField(), f.getDefaultMessage());
         }
+
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<CustomError> dataIntegrityViolation(DataIntegrityViolationException e, HttpServletRequest request) {
+
+        String error = "Database integrity violated";
+        String message = "The operation performed violates the integrity of the database";
+        HttpStatus status = HttpStatus.CONFLICT;
+
+        CustomError err = new CustomError(Instant.now(), status.value(), error, message, request.getRequestURI());
 
         return ResponseEntity.status(status).body(err);
     }
