@@ -49,7 +49,8 @@ public class AuthorController {
 
     @PutMapping(value = "/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<AuthorResponseDTO> update(@PathVariable Long id, @Valid @RequestBody AuthorRequestDTO request) {
+    public ResponseEntity<AuthorResponseDTO> update(@PathVariable Long id,
+                                                    @Valid @RequestBody AuthorRequestDTO request) {
         AuthorResponseDTO dto = authorService.update(id, request);
         return ResponseEntity.ok().body(dto);
     }
