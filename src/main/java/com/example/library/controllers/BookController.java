@@ -28,10 +28,10 @@ public class BookController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
     public ResponseEntity<Page<BookResponseDTO>> findAll(
-            @RequestParam(required = false) String title,
-            @RequestParam(required = false) String isbn,
-            @RequestParam(required = false) String author,
-            @RequestParam(required = false) String category,
+            @RequestParam(name = "title", required = false) String title,
+            @RequestParam(name = "isbn", required = false) String isbn,
+            @RequestParam(name = "author", required = false) String author,
+            @RequestParam(name = "category", required = false) String category,
             Pageable pageable) {
         Page<BookResponseDTO> dtos = bookService.findAll(title, isbn, author, category, pageable);
         return ResponseEntity.ok().body(dtos);
