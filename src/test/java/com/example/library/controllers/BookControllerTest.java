@@ -51,7 +51,7 @@ public class BookControllerTest {
                 "title": "Dom Casmurro",
                 "isbn": "9788535914849",
                 "publicationDate": "1899-01-01",
-                "totalCopies": 10,
+                "availableCopies": 10,
                 "authorId": 1,
                 "categoryId": 1
             }
@@ -84,8 +84,8 @@ public class BookControllerTest {
         return jwt().authorities(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
-    private static BookResponseDTO bookResponse(Long id, String title, Integer totalCopies) {
-        return new BookResponseDTO(id, title, "9788535914849", LocalDate.of(1899, 1, 1), totalCopies,
+    private static BookResponseDTO bookResponse(Long id, String title, Integer availableCopies) {
+        return new BookResponseDTO(id, title, "9788535914849", LocalDate.of(1899, 1, 1), availableCopies,
                 new AuthorResponseDTO(1L, "Machado de Assis"), new CategoryResponseDTO(1L, "Romance"));
     }
 
@@ -113,7 +113,7 @@ public class BookControllerTest {
                 .andExpect(jsonPath("$.content[0].title").value("Dom Casmurro"))
                 .andExpect(jsonPath("$.content[0].isbn").value("9788535914849"))
                 .andExpect(jsonPath("$.content[0].publicationDate").value("1899-01-01"))
-                .andExpect(jsonPath("$.content[0].totalCopies").value(10))
+                .andExpect(jsonPath("$.content[0].availableCopies").value(10))
                 .andExpect(jsonPath("$.content[0].author.id").value(1))
                 .andExpect(jsonPath("$.content[0].author.name").value("Machado de Assis"))
                 .andExpect(jsonPath("$.content[0].category.id").value(1))
@@ -193,7 +193,7 @@ public class BookControllerTest {
                 .andExpect(jsonPath("$.title").value("Dom Casmurro"))
                 .andExpect(jsonPath("$.isbn").value("9788535914849"))
                 .andExpect(jsonPath("$.publicationDate").value("1899-01-01"))
-                .andExpect(jsonPath("$.totalCopies").value(10))
+                .andExpect(jsonPath("$.availableCopies").value(10))
                 .andExpect(jsonPath("$.author.id").value(1))
                 .andExpect(jsonPath("$.author.name").value("Machado de Assis"))
                 .andExpect(jsonPath("$.category.id").value(1))
@@ -236,7 +236,7 @@ public class BookControllerTest {
                 .andExpect(jsonPath("$.title").value("Dom Casmurro"))
                 .andExpect(jsonPath("$.isbn").value("9788535914849"))
                 .andExpect(jsonPath("$.publicationDate").value("1899-01-01"))
-                .andExpect(jsonPath("$.totalCopies").value(10))
+                .andExpect(jsonPath("$.availableCopies").value(10))
                 .andExpect(jsonPath("$.author.id").value(1))
                 .andExpect(jsonPath("$.category.id").value(1));
 
@@ -272,7 +272,7 @@ public class BookControllerTest {
                     "title": null,
                     "isbn": null,
                     "publicationDate": null,
-                    "totalCopies": null,
+                    "availableCopies": null,
                     "authorId": null,
                     "categoryId": null
                 }
@@ -288,7 +288,7 @@ public class BookControllerTest {
                 .andExpect(jsonPath("$.errors[?(@.fieldName == 'title')].message").value("Title is required"))
                 .andExpect(jsonPath("$.errors[?(@.fieldName == 'isbn')].message").value("ISBN is required"))
                 .andExpect(jsonPath("$.errors[?(@.fieldName == 'publicationDate')].message").value("Publication date is required"))
-                .andExpect(jsonPath("$.errors[?(@.fieldName == 'totalCopies')].message").value("Total copies is required"))
+                .andExpect(jsonPath("$.errors[?(@.fieldName == 'availableCopies')].message").value("Available copies is required"))
                 .andExpect(jsonPath("$.errors[?(@.fieldName == 'authorId')].message").value("Author is required"))
                 .andExpect(jsonPath("$.errors[?(@.fieldName == 'categoryId')].message").value("Category is required"));
 
@@ -304,7 +304,7 @@ public class BookControllerTest {
                     "title": " ",
                     "isbn": "9788535914849",
                     "publicationDate": "1899-01-01",
-                    "totalCopies": 10,
+                    "availableCopies": 10,
                     "authorId": 1,
                     "categoryId": 1
                 }
@@ -329,7 +329,7 @@ public class BookControllerTest {
                     "title": "Dom Casmurro",
                     "isbn": "1234567890123",
                     "publicationDate": "1899-01-01",
-                    "totalCopies": 10,
+                    "availableCopies": 10,
                     "authorId": 1,
                     "categoryId": 1
                 }
@@ -354,7 +354,7 @@ public class BookControllerTest {
                     "title": "Dom Casmurro",
                     "isbn": "9788535914849",
                     "publicationDate": "%s",
-                    "totalCopies": 10,
+                    "availableCopies": 10,
                     "authorId": 1,
                     "categoryId": 1
                 }
@@ -371,7 +371,7 @@ public class BookControllerTest {
     }
 
     @Test
-    void shouldReturn422WhenInsertingBookWithNegativeTotalCopies() throws Exception {
+    void shouldReturn422WhenInsertingBookWithNegativeAvailableCopies() throws Exception {
 
         //arrange
         String json = """
@@ -379,7 +379,7 @@ public class BookControllerTest {
                     "title": "Dom Casmurro",
                     "isbn": "9788535914849",
                     "publicationDate": "1899-01-01",
-                    "totalCopies": -1,
+                    "availableCopies": -1,
                     "authorId": 1,
                     "categoryId": 1
                 }
@@ -389,14 +389,14 @@ public class BookControllerTest {
         mockMvc.perform(post("/books").with(admin()).contentType(MediaType.APPLICATION_JSON).content(json))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.errors.length()").value(1))
-                .andExpect(jsonPath("$.errors[0].fieldName").value("totalCopies"))
+                .andExpect(jsonPath("$.errors[0].fieldName").value("availableCopies"))
                 .andExpect(jsonPath("$.errors[0].message").value("Invalid number"));
 
         verify(bookService, never()).insert(any(BookRequestDTO.class));
     }
 
     @Test
-    void shouldReturn201WhenInsertingBookWithZeroTotalCopies() throws Exception {
+    void shouldReturn201WhenInsertingBookWithZeroAvailableCopies() throws Exception {
 
         //arrange
         when(bookService.insert(any(BookRequestDTO.class)))
@@ -407,7 +407,7 @@ public class BookControllerTest {
                     "title": "Dom Casmurro",
                     "isbn": "9788535914849",
                     "publicationDate": "1899-01-01",
-                    "totalCopies": 0,
+                    "availableCopies": 0,
                     "authorId": 1,
                     "categoryId": 1
                 }
@@ -416,7 +416,7 @@ public class BookControllerTest {
         //act and assert
         mockMvc.perform(post("/books").with(admin()).contentType(MediaType.APPLICATION_JSON).content(json))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.totalCopies").value(0));
+                .andExpect(jsonPath("$.availableCopies").value(0));
 
         verify(bookService).insert(any(BookRequestDTO.class));
     }
@@ -438,7 +438,7 @@ public class BookControllerTest {
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.title").value("Dom Casmurro - Edição Revisada"))
                 .andExpect(jsonPath("$.publicationDate").value("1900-01-01"))
-                .andExpect(jsonPath("$.totalCopies").value(10));
+                .andExpect(jsonPath("$.availableCopies").value(10));
 
         ArgumentCaptor<BookUpdateDTO> captor = ArgumentCaptor.forClass(BookUpdateDTO.class);
         verify(bookService).update(eq(1L), captor.capture());
@@ -590,7 +590,7 @@ public class BookControllerTest {
         mockMvc.perform(patch("/books/{id}/copies/add", 1L).with(admin()).contentType(MediaType.APPLICATION_JSON).content(json))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.totalCopies").value(15));
+                .andExpect(jsonPath("$.availableCopies").value(15));
 
         ArgumentCaptor<BookCopiesDTO> captor = ArgumentCaptor.forClass(BookCopiesDTO.class);
         verify(bookService).addBookCopies(eq(1L), captor.capture());
@@ -703,7 +703,7 @@ public class BookControllerTest {
         mockMvc.perform(patch("/books/{id}/copies/remove", 1L).with(admin()).contentType(MediaType.APPLICATION_JSON).content(json))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.totalCopies").value(6));
+                .andExpect(jsonPath("$.availableCopies").value(6));
 
         ArgumentCaptor<BookCopiesDTO> captor = ArgumentCaptor.forClass(BookCopiesDTO.class);
         verify(bookService).removeBookCopies(eq(1L), captor.capture());

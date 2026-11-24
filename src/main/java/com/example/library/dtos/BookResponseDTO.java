@@ -9,14 +9,14 @@ public record BookResponseDTO(
         String title,
         String isbn,
         LocalDate publicationDate,
-        Integer totalCopies,
+        Integer availableCopies,
         AuthorResponseDTO author,
         CategoryResponseDTO category
 ) {
 
     public BookResponseDTO(Book book) {
         this(book.getId(), book.getTitle(), book.getIsbn(),
-                book.getPublicationDate(), book.getTotalCopies(), new AuthorResponseDTO(book.getAuthor()),
+                book.getPublicationDate(), book.getAvailableCopies(), new AuthorResponseDTO(book.getAuthor()),
                 new CategoryResponseDTO(book.getCategory()));
     }
 }

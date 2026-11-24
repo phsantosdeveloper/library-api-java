@@ -18,7 +18,7 @@ public interface BookMapper {
     Book toEntity(BookRequestDTO request);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "totalCopies", ignore = true)
+    @Mapping(target = "availableCopies", ignore = true)
     @Mapping(target = "author", ignore = true)
     @Mapping(target = "category", ignore = true)
     @Mapping(target = "loans", ignore = true)

@@ -57,7 +57,9 @@ public class BookService {
 
     @Transactional
     public BookResponseDTO update(Long id, BookUpdateDTO request) {
-        Book book = searchBook(id);
+        // O Hibernate grava todas as colunas no UPDATE (inclusive available_copies), então sem o lock
+        // esta operação sobrescreveria o estoque alterado por um empréstimo concorrente
+        Book book = searchBookForUpdate(id);
         bookMapper.updateEntity(request, book);
         setRelations(book, request.authorId(), request.categoryId());
         bookRepository.save(book);
@@ -72,18 +74,18 @@ public class BookService {
 
     @Transactional
     public BookResponseDTO addBookCopies(Long id, BookCopiesDTO dto) {
-        Book book = searchBook(id);
-        book.setTotalCopies(book.getTotalCopies() + dto.quantityCopies());
+        Book book = searchBookForUpdate(id);
+        book.setAvailableCopies(book.getAvailableCopies() + dto.quantityCopies());
         return new BookResponseDTO(book);
     }
 
     @Transactional
     public BookResponseDTO removeBookCopies(Long id, BookCopiesDTO dto) {
-        Book book = searchBook(id);
-        if(dto.quantityCopies() > book.getTotalCopies()) {
+        Book book = searchBookForUpdate(id);
+        if(dto.quantityCopies() > book.getAvailableCopies()) {
             throw new InvalidWithdrawalAmountException("It is not possible to remove a quantity greater than what is currently in stock");
         }
-        book.setTotalCopies(book.getTotalCopies() - dto.quantityCopies());
+        book.setAvailableCopies(book.getAvailableCopies() - dto.quantityCopies());
         return new BookResponseDTO(book);
     }
 
@@ -96,6 +98,13 @@ public class BookService {
 
     private Book searchBook(Long id) {
         return bookRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(id));
+    }
+
+    // Trava a linha do livro (SELECT ... FOR UPDATE) até o fim da transação, para que o ajuste
+    // de estoque não sobrescreva alterações feitas por empréstimos/devoluções concorrentes
+    private Book searchBookForUpdate(Long id) {
+        return bookRepository.findByIdForUpdate(id)
                 .orElseThrow(() -> new ResourceNotFoundException(id));
     }
 

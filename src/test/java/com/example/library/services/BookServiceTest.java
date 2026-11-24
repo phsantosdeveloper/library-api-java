@@ -198,7 +198,7 @@ public class BookServiceTest {
         assertEquals("Dom Casmurro", bookCaptured.getTitle());
         assertEquals("9788535914849", bookCaptured.getIsbn());
         assertEquals(LocalDate.of(1899, 1, 1), bookCaptured.getPublicationDate());
-        assertEquals(10, bookCaptured.getTotalCopies());
+        assertEquals(10, bookCaptured.getAvailableCopies());
         assertEquals(1L, bookCaptured.getAuthor().getId());
         assertEquals(1L, bookCaptured.getCategory().getId());
     }
@@ -258,7 +258,7 @@ public class BookServiceTest {
         BookUpdateDTO request = new BookUpdateDTO("Iracema", "9780134685991",
                 LocalDate.of(1865, 1, 1), 2L, 2L);
 
-        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+        when(bookRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(book));
         when(authorRepository.findById(2L)).thenReturn(Optional.of(newAuthor));
         when(categoryRepository.findById(2L)).thenReturn(Optional.of(newCategory));
 
@@ -272,14 +272,14 @@ public class BookServiceTest {
     }
 
     @Test
-    void shouldNotChangeTotalCopiesWhenUpdatingBook() {
+    void shouldNotChangeAvailableCopiesWhenUpdatingBook() {
 
         //arrange
         Book book = book();
         BookUpdateDTO request = new BookUpdateDTO("Dom Casmurro", "9788535914849",
                 LocalDate.of(1899, 1, 1), 1L, 1L);
 
-        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+        when(bookRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(book));
         when(authorRepository.findById(1L)).thenReturn(Optional.of(author()));
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(category()));
 
@@ -287,8 +287,8 @@ public class BookServiceTest {
         BookResponseDTO result = bookService.update(1L, request);
 
         //assert
-        assertEquals(10, result.totalCopies());
-        assertEquals(10, book.getTotalCopies());
+        assertEquals(10, result.availableCopies());
+        assertEquals(10, book.getAvailableCopies());
         assertEquals(1L, book.getId());
     }
 
@@ -299,7 +299,7 @@ public class BookServiceTest {
         BookUpdateDTO request = new BookUpdateDTO("Iracema", "9780134685991",
                 LocalDate.of(1865, 1, 1), 1L, 1L);
 
-        when(bookRepository.findById(99L)).thenReturn(Optional.empty());
+        when(bookRepository.findByIdForUpdate(99L)).thenReturn(Optional.empty());
 
         //act and assert
         ResourceNotFoundException exception = assertThrows(
@@ -309,7 +309,7 @@ public class BookServiceTest {
 
         assertEquals(NOT_FOUND_MESSAGE, exception.getMessage());
 
-        verify(bookRepository).findById(99L);
+        verify(bookRepository).findByIdForUpdate(99L);
         verify(bookRepository, never()).save(any(Book.class));
     }
 
@@ -320,7 +320,7 @@ public class BookServiceTest {
         BookUpdateDTO request = new BookUpdateDTO("Iracema", "9780134685991",
                 LocalDate.of(1865, 1, 1), 99L, 1L);
 
-        when(bookRepository.findById(1L)).thenReturn(Optional.of(book()));
+        when(bookRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(book()));
         when(authorRepository.findById(99L)).thenReturn(Optional.empty());
 
         //act and assert
@@ -342,7 +342,7 @@ public class BookServiceTest {
         BookUpdateDTO request = new BookUpdateDTO("Iracema", "9780134685991",
                 LocalDate.of(1865, 1, 1), 1L, 99L);
 
-        when(bookRepository.findById(1L)).thenReturn(Optional.of(book()));
+        when(bookRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(book()));
         when(authorRepository.findById(1L)).thenReturn(Optional.of(author()));
         when(categoryRepository.findById(99L)).thenReturn(Optional.empty());
 
@@ -399,21 +399,21 @@ public class BookServiceTest {
 
         //arrange
         Book book = book();
-        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+        when(bookRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(book));
 
         //act
         BookResponseDTO result = bookService.addBookCopies(1L, new BookCopiesDTO(5));
 
         //assert
-        assertEquals(15, result.totalCopies());
-        assertEquals(15, book.getTotalCopies());
+        assertEquals(15, result.availableCopies());
+        assertEquals(15, book.getAvailableCopies());
     }
 
     @Test
     void shouldThrowExceptionWhenAddingCopiesToNonExistentBook() {
 
         //arrange
-        when(bookRepository.findById(99L)).thenReturn(Optional.empty());
+        when(bookRepository.findByIdForUpdate(99L)).thenReturn(Optional.empty());
 
         //act and assert
         ResourceNotFoundException exception = assertThrows(
@@ -423,7 +423,7 @@ public class BookServiceTest {
 
         assertEquals(NOT_FOUND_MESSAGE, exception.getMessage());
 
-        verify(bookRepository).findById(99L);
+        verify(bookRepository).findByIdForUpdate(99L);
     }
 
     // ---------- removeBookCopies ----------
@@ -433,14 +433,14 @@ public class BookServiceTest {
 
         //arrange
         Book book = book();
-        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+        when(bookRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(book));
 
         //act
         BookResponseDTO result = bookService.removeBookCopies(1L, new BookCopiesDTO(4));
 
         //assert
-        assertEquals(6, result.totalCopies());
-        assertEquals(6, book.getTotalCopies());
+        assertEquals(6, result.availableCopies());
+        assertEquals(6, book.getAvailableCopies());
     }
 
     @Test
@@ -448,14 +448,14 @@ public class BookServiceTest {
 
         //arrange
         Book book = book();
-        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+        when(bookRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(book));
 
         //act
         BookResponseDTO result = bookService.removeBookCopies(1L, new BookCopiesDTO(10));
 
         //assert
-        assertEquals(0, result.totalCopies());
-        assertEquals(0, book.getTotalCopies());
+        assertEquals(0, result.availableCopies());
+        assertEquals(0, book.getAvailableCopies());
     }
 
     @Test
@@ -463,7 +463,7 @@ public class BookServiceTest {
 
         //arrange
         Book book = book();
-        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+        when(bookRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(book));
 
         //act and assert
         InvalidWithdrawalAmountException exception = assertThrows(
@@ -473,14 +473,14 @@ public class BookServiceTest {
 
         assertEquals("It is not possible to remove a quantity greater than what is currently in stock",
                 exception.getMessage());
-        assertEquals(10, book.getTotalCopies());
+        assertEquals(10, book.getAvailableCopies());
     }
 
     @Test
     void shouldThrowExceptionWhenRemovingCopiesFromNonExistentBook() {
 
         //arrange
-        when(bookRepository.findById(99L)).thenReturn(Optional.empty());
+        when(bookRepository.findByIdForUpdate(99L)).thenReturn(Optional.empty());
 
         //act and assert
         ResourceNotFoundException exception = assertThrows(
@@ -490,6 +490,6 @@ public class BookServiceTest {
 
         assertEquals(NOT_FOUND_MESSAGE, exception.getMessage());
 
-        verify(bookRepository).findById(99L);
+        verify(bookRepository).findByIdForUpdate(99L);
     }
 }

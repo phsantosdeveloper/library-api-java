@@ -23,8 +23,9 @@ public class Book {
     @Column(name = "publication_date", nullable = false)
     private LocalDate publicationDate;
 
-    @Column(name = "total_copies", nullable = false)
-    private Integer totalCopies;
+    @Column(name = "available_copies", nullable = false,
+            check = @CheckConstraint(name = "ck_book_available_copies", constraint = "available_copies >= 0"))
+    private Integer availableCopies;
 
     @ManyToOne
     @JoinColumn(name = "author_id", nullable = false)
@@ -40,12 +41,12 @@ public class Book {
     public Book() {
     }
 
-    public Book(Long id, String title, String isbn, LocalDate publicationDate, Integer totalCopies, Author author, Category category) {
+    public Book(Long id, String title, String isbn, LocalDate publicationDate, Integer availableCopies, Author author, Category category) {
         this.id = id;
         this.title = title;
         this.isbn = isbn;
         this.publicationDate = publicationDate;
-        this.totalCopies = totalCopies;
+        this.availableCopies = availableCopies;
         this.author = author;
         this.category = category;
     }
@@ -82,12 +83,12 @@ public class Book {
         this.publicationDate = publicationDate;
     }
 
-    public Integer getTotalCopies() {
-        return totalCopies;
+    public Integer getAvailableCopies() {
+        return availableCopies;
     }
 
-    public void setTotalCopies(Integer totalCopies) {
-        this.totalCopies = totalCopies;
+    public void setAvailableCopies(Integer availableCopies) {
+        this.availableCopies = availableCopies;
     }
 
     public Author getAuthor() {

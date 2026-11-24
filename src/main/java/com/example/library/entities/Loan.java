@@ -3,8 +3,8 @@ package com.example.library.entities;
 import com.example.library.entities.enums.LoanStatus;
 import jakarta.persistence.*;
 
-import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tb_loan")
@@ -21,7 +21,7 @@ public class Loan {
     private LocalDate expectedReturnDate;
 
     @Column(name = "time_return")
-    private Instant timeReturn;
+    private LocalDateTime timeReturn;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -38,7 +38,7 @@ public class Loan {
     public Loan() {
     }
 
-    public Loan(Long id, LocalDate loanDate, LocalDate expectedReturnDate, Instant timeReturn, LoanStatus status, User user, Book book) {
+    public Loan(Long id, LocalDate loanDate, LocalDate expectedReturnDate, LocalDateTime timeReturn, LoanStatus status, User user, Book book) {
         this.id = id;
         this.loanDate = loanDate;
         this.expectedReturnDate = expectedReturnDate;
@@ -72,11 +72,11 @@ public class Loan {
         this.expectedReturnDate = expectedReturnDate;
     }
 
-    public Instant getTimeReturn() {
+    public LocalDateTime getTimeReturn() {
         return timeReturn;
     }
 
-    public void setTimeReturn(Instant timeReturn) {
+    public void setTimeReturn(LocalDateTime timeReturn) {
         this.timeReturn = timeReturn;
     }
 
