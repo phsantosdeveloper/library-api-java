@@ -95,7 +95,7 @@ public class LoanService {
         validateStatus(loan);
         validateUserHasNoOverdueLoans(currentDate, loan.getUser().getId(), LoanStatus.ACTIVE);
 
-        if(dto.expectedReturnDate().isAfter(currentDate.plusDays(30))) {
+        if(dto.expectedReturnDate().isAfter(loan.getExpectedReturnDate().plusDays(30))) {
             throw new InvalidDateException("Impossible to update to this date");
         }
 
