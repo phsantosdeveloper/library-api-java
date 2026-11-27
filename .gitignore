@@ -35,3 +35,6 @@ build/
 .env
 .env.*
 !.env.example
+
+# Dados do Postgres (docker compose)
+pgdata/

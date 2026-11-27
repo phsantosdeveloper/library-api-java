@@ -1,0 +1,13 @@
+target/
+.idea/
+.vscode/
+.git/
+*.iml
+HELP.md
+Dockerfile
+.dockerignore
+pgdata/
+
+# Segredos: passe as variáveis em tempo de execução (--env-file .env)
+.env
+.env.*

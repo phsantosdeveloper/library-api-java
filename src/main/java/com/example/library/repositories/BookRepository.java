@@ -19,8 +19,6 @@ import java.util.Optional;
 
 public interface BookRepository extends JpaRepository<Book, Long>, JpaSpecificationExecutor<Book> {
 
-    Optional<Book> findByIsbn(String isbn);
-
     @Override
     @EntityGraph(attributePaths = {"author", "category"})
     Page<Book> findAll(Specification<Book> spec, Pageable pageable);
